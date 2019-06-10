@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">QrCodeReader</string>
+
+    <integer name="viewfinder_border_width">5</integer>
+    <integer name="viewfinder_border_length">80</integer>
+</resources>
