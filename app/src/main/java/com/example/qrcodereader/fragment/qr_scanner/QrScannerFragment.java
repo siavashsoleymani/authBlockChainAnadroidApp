@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,21 @@ import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 import com.example.qrcodereader.BasePresenter;
 import com.example.qrcodereader.R;
 import com.example.qrcodereader.fragment.BaseFragment;
+import com.example.qrcodereader.model.LidDTO;
+import com.example.qrcodereader.model.RetrofitProvider;
+import com.example.qrcodereader.model.UidApi;
 import com.example.qrcodereader.util.DialogHelper;
+import com.example.qrcodereader.util.SharedPrefsUtils;
 import com.example.qrcodereader.util.ToastHelper;
 import com.example.qrcodereader.view.ViewFinderView;
 
+import java.util.IllegalFormatCodePointException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class QrScannerFragment
@@ -39,6 +49,8 @@ public class QrScannerFragment
 
 
     Dialog progressDialog;
+
+    UidApi uidApi = RetrofitProvider.getUidApi();
 
     @Nullable
     @Override
@@ -193,10 +205,27 @@ public class QrScannerFragment
         if (canScan) {
             pauseCameraView();
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
-                    .setMessage(text)
+                    .setMessage("آیا از اشتراک گذاشتن اطلاعات خود با سایت پذیرنده اطمینان دارید؟")
                     .setPositiveButton(
-                            "ok",
-                            (dialog, which) -> dialog.dismiss()
+                            "بلی",
+                            (dialog, which) -> {
+                                dialog.dismiss();
+                                Call<Object> key = uidApi.loginUser(new LidDTO(text, SharedPrefsUtils.getStringPreference(getContext(), "key")));
+                                key.enqueue(new Callback<Object>() {
+                                    @Override
+                                    public void onResponse(Call<Object> call, Response<Object> response) {
+                                        if (response.isSuccessful())
+                                            Log.e("onResponse: ", "USER LOGGED IN SUCCESSFULLY");
+                                        else Log.e("onResponse: ", "CANT LOGIN USER!!!!!!!!!!!!!!!1");
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Object> call, Throwable t) {
+                                        t.printStackTrace();
+                                    }
+                                });
+                                resumeCameraView();
+                            }
                     )
                     .setOnCancelListener(dialog -> {
                         resumeCameraView();
