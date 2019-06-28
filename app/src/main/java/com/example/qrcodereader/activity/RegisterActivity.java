@@ -28,18 +28,21 @@ public class RegisterActivity extends Activity {
 
         setContentView(R.layout.activity_scan);
 
-        EditText name = (EditText) findViewById(R.id.et_name);
-        EditText family = (EditText) findViewById(R.id.et_family);
-        EditText dob = (EditText) findViewById(R.id.et_dob);
-        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.rg_sex);
+        EditText name = findViewById(R.id.et_name);
+        EditText family = findViewById(R.id.et_family);
+        EditText dob = findViewById(R.id.et_dob);
+        EditText email = findViewById(R.id.et_email);
+        RadioGroup radioGroup = findViewById(R.id.rg_sex);
 
 
         findViewById(R.id.btn_register).setOnClickListener(e -> {
             if (!name.getText().toString().isEmpty() &&
                     !family.getText().toString().isEmpty() &&
-                    !dob.getText().toString().isEmpty()) {
+                    !dob.getText().toString().isEmpty() &&
+                    !email.getText().toString().isEmpty()) {
                 registerUser(name.getText().toString(),
                         family.getText().toString(),
+                        email.getText().toString(),
                         dob.getText().toString(),
                         radioGroup.getCheckedRadioButtonId() == R.id.female);
             } else
@@ -54,8 +57,8 @@ public class RegisterActivity extends Activity {
         finish();
     }
 
-    private void registerUser(String name, String family, String dob, Boolean sex) {
-        User user = new User(name, dob, sex.toString(), null);
+    private void registerUser(String name, String family, String email, String dob, Boolean sex) {
+        User user = new User(name, family, email, dob, sex.toString());
         Call<User> registerUser =
                 RetrofitProvider.getUidApi().registerUser(user);
         registerUser.enqueue(new Callback<User>() {
