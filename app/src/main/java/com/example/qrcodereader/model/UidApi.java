@@ -2,6 +2,7 @@ package com.example.qrcodereader.model;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 
 public interface UidApi {
@@ -10,4 +11,7 @@ public interface UidApi {
 
     @POST("users/login")
     Call<Object> loginUser(@Body LidDTO lidDTO);
+
+    @PATCH("users")
+    Call<User> editUser(@Body User user);
 }

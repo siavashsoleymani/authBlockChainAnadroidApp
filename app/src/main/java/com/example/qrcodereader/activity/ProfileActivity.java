@@ -17,7 +17,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RegisterActivity extends Activity {
+public class ProfileActivity extends Activity {
 
     EditText nameEt;
     EditText familyEt;
@@ -28,11 +28,8 @@ public class RegisterActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (SharedPrefsUtils.getStringPreference(this, "key") != null) {
-            gotoScanActivity();
-        }
+        setContentView(R.layout.activity_profile);
 
-        setContentView(R.layout.activity_scan);
 
         nameEt = findViewById(R.id.et_name);
         familyEt = findViewById(R.id.et_family);
@@ -40,13 +37,18 @@ public class RegisterActivity extends Activity {
         emailEt = findViewById(R.id.et_email);
         radioGroup = findViewById(R.id.rg_sex);
 
+        nameEt.setText(SharedPrefsUtils.getStringPreference(ProfileActivity.this, "name"));
+        familyEt.setText(SharedPrefsUtils.getStringPreference(ProfileActivity.this, "family"));
+        emailEt.setText(SharedPrefsUtils.getStringPreference(ProfileActivity.this, "email"));
+        dobEt.setText(SharedPrefsUtils.getStringPreference(ProfileActivity.this, "dob"));
+
 
         findViewById(R.id.btn_register).setOnClickListener(e -> {
             if (!nameEt.getText().toString().isEmpty() &&
                     !familyEt.getText().toString().isEmpty() &&
                     !dobEt.getText().toString().isEmpty() &&
                     !emailEt.getText().toString().isEmpty()) {
-                registerUser(nameEt.getText().toString(),
+                editUser(nameEt.getText().toString(),
                         familyEt.getText().toString(),
                         emailEt.getText().toString(),
                         dobEt.getText().toString(),
@@ -63,22 +65,23 @@ public class RegisterActivity extends Activity {
         finish();
     }
 
-    private void registerUser(String name, String family, String email, String dob, Boolean sex) {
+    private void editUser(String name, String family, String email, String dob, Boolean sex) {
         User user = new User(name, family, email, dob, sex.toString());
-        Call<User> registerUser =
-                RetrofitProvider.getUidApi().registerUser(user);
-        registerUser.enqueue(new Callback<User>() {
+        user.setKey(SharedPrefsUtils.getStringPreference(this, "key"));
+        Call<User> editUser =
+                RetrofitProvider.getUidApi().editUser(user);
+        editUser.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "ثبت نام شما با موفقیت انجام شد.", Toast.LENGTH_SHORT).show();
-                    SharedPrefsUtils.setStringPreference(RegisterActivity.this, "key", response.body().getKey());
+                    Toast.makeText(ProfileActivity.this, "تغییرات شما اعمال شدند.", Toast.LENGTH_SHORT).show();
 
-                    SharedPrefsUtils.setStringPreference(RegisterActivity.this, "name", nameEt.getText().toString());
-                    SharedPrefsUtils.setStringPreference(RegisterActivity.this, "family", familyEt.getText().toString());
-                    SharedPrefsUtils.setStringPreference(RegisterActivity.this, "email", emailEt.getText().toString());
-                    SharedPrefsUtils.setStringPreference(RegisterActivity.this, "dob", dobEt.getText().toString());
-                    SharedPrefsUtils.setBooleanPreference(RegisterActivity.this, "sex", radioGroup.getCheckedRadioButtonId() == R.id.female);
+                    SharedPrefsUtils.setStringPreference(ProfileActivity.this, "name", nameEt.getText().toString());
+                    SharedPrefsUtils.setStringPreference(ProfileActivity.this, "family", familyEt.getText().toString());
+                    SharedPrefsUtils.setStringPreference(ProfileActivity.this, "email", emailEt.getText().toString());
+                    SharedPrefsUtils.setStringPreference(ProfileActivity.this, "dob", dobEt.getText().toString());
+                    SharedPrefsUtils.setBooleanPreference(ProfileActivity.this, "sex", radioGroup.getCheckedRadioButtonId() == R.id.female);
+
                     gotoScanActivity();
                 }
             }
